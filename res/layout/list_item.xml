@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+           		android:layout_width="fill_parent"
+              	android:orientation="horizontal"
+          		android:padding="15dp"              
+              	android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/track_artwork"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+			android:contentDescription="artwork"
+            android:src="@drawable/guardian" />   
+    
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/track_artwork"
+            android:orientation="vertical">
+		
+		<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+		          android:id="@+id/track_title"
+		          android:text="Unknown Song"		          
+		          android:layout_width="fill_parent"
+		          android:layout_height="wrap_content" />
+		
+		<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+		          android:id="@+id/track_artist"
+		          android:textSize="10dp"
+		          android:textStyle="bold"
+		          android:text="Unknown Artist"
+		          android:layout_width="fill_parent"
+		          android:layout_height="wrap_content" />
+
+	</LinearLayout>
+
+</RelativeLayout>

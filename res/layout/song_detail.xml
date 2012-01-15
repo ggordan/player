@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/songView"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+	<TextView android:id="@+id/songName"
+	    android:padding="10dp"
+	    android:gravity="left"
+	    android:textStyle="bold"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text=" This is the Dream of Evan and Chan"
+	    />
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:id="@+id/artwork"
+            android:layout_width="240dp"
+            android:layout_height="240dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="18dp"
+            android:contentDescription="artwork"
+            android:src="@drawable/rainbows" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+                    
+                            <ImageButton
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="10dp"
+            android:background="@null"
+            android:src="@drawable/guardian"
+             />
+
+                            <ImageButton
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="10dp"
+            android:background="@null"
+            android:src="@drawable/guardian"
+             />
+                            
+                            <ImageButton
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="10dp"
+            android:background="@null"
+            android:src="@drawable/guardian"
+             />
+
+                            <ImageButton
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="10dp"
+            android:background="@null"
+            android:src="@drawable/guardian"
+             />
+                            
+                            <ImageButton
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="10dp"
+            android:background="@null"
+            android:src="@drawable/guardian"
+             />
+                            
+                            <ImageButton
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="10dp"
+            android:background="@null"
+            android:src="@drawable/guardian"
+             />                            
+                            
+                            
+        </LinearLayout>
+
+    </LinearLayout>
+
+   
+   	<LinearLayout
+   	    android:id="@+id/linearLayout1"
+   	    android:layout_width="match_parent"
+   	    android:layout_height="wrap_content"
+   	    android:layout_marginLeft="10dp"
+   	    android:layout_marginTop="10dp"
+   	    android:layout_marginRight="10dp"   	       	    
+   	    android:background="#e2e2e2"
+   	    android:orientation="horizontal"
+   	    android:padding="10dp">
+
+				<TextView
+				    android:id="@+id/textView1"
+				    android:layout_width="50dp"
+				    android:textStyle="bold"
+				    android:layout_marginRight="5dp"
+				    android:layout_height="wrap_content"
+				    android:text="Artist: " />
+				
+				<TextView
+				    android:id="@+id/artistName"
+				    android:layout_width="wrap_content"
+				    android:layout_height="wrap_content"
+				    android:text=" Death Cab for Cutie " />
+	    		
+	</LinearLayout>
+	
+   	<LinearLayout
+   	    android:id="@+id/linearLayout1"
+   	    android:layout_width="match_parent"
+   	    android:layout_height="wrap_content"
+   	    android:layout_marginLeft="10dp"
+   	    android:layout_marginBottom="10dp"
+   	    android:layout_marginRight="10dp"   	       	    
+   	    android:background="#e2e2e2"
+   	    android:orientation="horizontal"
+   	    android:padding="10dp">
+
+				<TextView
+				    android:id="@+id/textView1"
+				    android:layout_width="50dp"
+				    android:textStyle="bold"
+				    android:layout_marginRight="5dp"
+				    android:layout_height="wrap_content"
+				    android:text="Album: " />
+				
+				<TextView
+				    android:id="@+id/albumName"
+				    android:layout_width="wrap_content"
+				    android:layout_height="wrap_content"
+				    android:text=" Narrow Stairs " />
+	    		
+	</LinearLayout>   	
+
+   	   	<RelativeLayout
+   	    android:id="@+id/linearLayout1"
+   	    android:layout_width="fill_parent"
+   	    android:layout_height="wrap_content"
+   	    android:layout_marginLeft="10dp"
+   	    android:layout_marginBottom="10dp"
+   	    android:layout_marginRight="10dp"   	       	    
+   	    android:orientation="horizontal">			 		
+	
+        <ImageButton
+            android:id="@+id/play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+           android:layout_centerHorizontal="true"            
+            android:layout_toRightOf="@+id/test"
+            android:src="@drawable/playbutton"
+             />
+
+        <ImageButton
+            android:id="@+id/test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:background="@null"
+           	android:layout_centerHorizontal="true"            
+            android:src="@drawable/playbutton"
+             />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/test"            
+            android:background="@null"
+            android:src="@drawable/playbutton"
+             />        
+        	   	    
+   	  	</RelativeLayout>
+	
+</LinearLayout>

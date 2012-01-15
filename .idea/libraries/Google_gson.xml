@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Google-gson">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/Google-gson.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
