@@ -6,9 +6,14 @@ import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,15 +34,23 @@ public class Vevolt extends Activity {
     TrackList TL = new TrackList(this);
     MusicPlayer mp = new MusicPlayer(this);
     Integer currentPosition = 0;
-    
+    ActiveSong ass;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        final AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);       
 
+    	ass = (ActiveSong) findViewById(R.id.active_song);
+        ass.setActivity(this);
+        
+        final AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);       
+    	Resources res = getResources();
+        TextView songCount = (TextView) findViewById(R.id.songCount);
+        
+        songCount.setText( TL.getSongCount() + " songs");
         //TL.addEvent();
+			  
         // Fetch all song ID's
 		List listOfSongs = TL.returnSongs();
         
@@ -69,8 +82,44 @@ public class Vevolt extends Activity {
                 startActivity(intent);
             }
         });
+
+ 	   // design the shit out of the play pause button
+ 	   ImageButton playPause = (ImageButton) findViewById(R.id.playpause);
+
+ 	   if(audioManager.isMusicActive()) {
+ 		   Drawable pauseButton = (Drawable) res.getDrawable(R.drawable.pause);      
+ 	       playPause.setImageDrawable(pauseButton);
+ 	   } else {
+ 		   Drawable pauseButton = (Drawable) res.getDrawable(R.drawable.play);      
+ 	       playPause.setImageDrawable(pauseButton);		   
+ 	   }
+    }
+    
+    @Override
+    protected void onResume() {
+    	super.onResume();
+        final AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);       
+
+  	   // design the shit out of the play pause button
+  	   ImageButton playPause = (ImageButton) findViewById(R.id.playpause);
+  	   Resources res = getResources();
+
+  	   if(audioManager.isMusicActive()) {
+  		   Drawable pauseButton = (Drawable) res.getDrawable(R.drawable.pause);      
+  	       playPause.setImageDrawable(pauseButton);
+  	       
+  	   } else {
+  		   Drawable pauseButton = (Drawable) res.getDrawable(R.drawable.play);      
+  	       playPause.setImageDrawable(pauseButton);		   
+  	   } 	
     }
 
+    @Override
+    public void onRestoreInstanceState(final Bundle savedInstanceState) {
+       super.onRestoreInstanceState(savedInstanceState);
+    }    
+    
+    
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putString("test", "Welcome back to Android");

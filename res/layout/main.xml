@@ -5,19 +5,26 @@
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-            <TextView
-                android:id="@+id/currentTitlee"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Strange Overtones"
-                android:textColor="#f8f8f8"
-                android:textSize="11dp" />
+
+    <TextView
+        android:id="@+id/songCount"
+        android:layout_width="match_parent"
+        android:textColor="#212121"
+        android:background="@null"
+        android:layout_height="wrap_content"
+		android:gravity="center_vertical|center_horizontal"
+        android:text="356 songs "
+        android:alpha="0.5"
+        android:textSize="11dp" />
+    
     <ListView
         android:id="@+id/listview"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1.0" />
 
-	<include layout="@layout/active_song"/>
+    <com.vevolt.player.ActiveSong
+        android:id="@+id/active_song" android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
 
 </LinearLayout>

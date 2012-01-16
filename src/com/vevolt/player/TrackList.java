@@ -41,19 +41,19 @@ public class TrackList extends Activity {
         wdb.execSQL(MPDHelper.TRACK_TABLE_SQL);
         wdb.close();
         
-        
     	if (new File(CACHE_PATH).exists()) {
     		new File(CACHE_PATH).mkdirs();    		
     	}
     	
+        final MediaMetadataRetriever mmr = new MediaMetadataRetriever();            	
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();        	        
     	BitmapFactory.Options options = new BitmapFactory.Options();
     	options.inSampleSize = 8;  	
     	
         // loop through songlist
-        for ( File song : list ) {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();        	
+        for ( File song : list ) {      	
             ContentValues values = new ContentValues();
-            final MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             List storedAlbums = new ArrayList();
             
             mmr.setDataSource(song.toString());
@@ -65,8 +65,6 @@ public class TrackList extends Activity {
             
             if (!storedAlbums.contains(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM))) {
 	            if (mmr.getEmbeddedPicture() != null) {
-						 new Thread(new Runnable() {
-							    public void run() {
 							    	try {
 						        	FileOutputStream f = new FileOutputStream(imageLocation);
 						        	final Bitmap bmp = BitmapFactory.decodeByteArray(mmr.getEmbeddedPicture(), 0, mmr.getEmbeddedPicture().length);
@@ -75,8 +73,6 @@ public class TrackList extends Activity {
 								    } catch (Exception e) {
 								        e.printStackTrace();
 								 	}
-							    }
-							  }).start();				    	
 						storedAlbums.add(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM));	
 						values.put(MPDHelper.TRACK_ARTWORK, imageLocation);
 	            } else {
@@ -92,9 +88,11 @@ public class TrackList extends Activity {
             values.put(MPDHelper.TRACK_LOVED, 0);
             values.put(MPDHelper.TRACK_PLAYS, 0);
             
-            db.insert(MPDHelper.TRACK_TABLE, null, values);
-            db.close();
+            db.insert(MPDHelper.TRACK_TABLE, null, values);                  
         }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();  
     }
 
     /**
@@ -135,14 +133,17 @@ public class TrackList extends Activity {
 
     	List data = new ArrayList();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
+        db.beginTransaction();
         //Log.w("track", "SELECT " + MPDHelper.TRACK_TITLE + ", " + MPDHelper.TRACK_ALBUM + ", " + MPDHelper.TRACK_ARTWORK + " FROM track WHERE Track_ID = '" + songID + "' LIMIT 1");        
-        Cursor cursor = db.rawQuery("SELECT " + MPDHelper.TRACK_TITLE + ", " + MPDHelper.TRACK_ALBUM + ", " + MPDHelper.TRACK_ARTWORK + " FROM track WHERE Track_ID = '" + songID + "' LIMIT 1", null);
+        Cursor cursor = db.rawQuery("SELECT " + MPDHelper.TRACK_TITLE + ", " + MPDHelper.TRACK_ARTIST + ", " + MPDHelper.TRACK_ARTWORK + " FROM track WHERE Track_ID = '" + songID + "' LIMIT 1", null);
         startManagingCursor(cursor);
 
         cursor.moveToFirst();
         data.add(cursor.getString(0));
         data.add(cursor.getString(1));
         data.add(cursor.getString(2));
+        db.setTransactionSuccessful();
+        db.endTransaction();
         db.close();
         return data;
     }
@@ -247,11 +248,6 @@ public class TrackList extends Activity {
             }
         }
         
-//        for ( Integer track : tracks ) {
-//            values.put(MPDHelper.QUEUE_SONG_ID, track);
-//            Log.w("queue", "Songid: " + track);
-//            db.insert(MPDHelper.QUEUE_TABLE, null, values);
-//        }
         db.close();
     }
     
@@ -271,6 +267,11 @@ public class TrackList extends Activity {
         
         //cursor.moveToFirst();
         //Log.w("SQL", "s" + cursor.getInt(0) + 2);
-
+    }
+    
+    public Integer getSongCount() {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT Track_ID FROM track", null);
+        return cursor.getCount();
     }
 }

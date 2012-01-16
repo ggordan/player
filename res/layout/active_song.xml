@@ -46,13 +46,14 @@
             android:background="@null"
             android:src="@drawable/pause" />
 
-        <ImageButton
-            android:layout_width="32dp"
-            android:contentDescription="saas"
-            android:layout_height="32dp"
-            android:layout_marginRight="8dp"
-            android:layout_toLeftOf="@+id/playpause"
-            android:background="@null"
-            android:src="@drawable/play"
-             />
+<!--         <ImageButton -->
+<!--             android:layout_width="32dp" -->
+<!--             android:contentDescription="saas" -->
+<!--             android:layout_height="32dp" -->
+<!--             android:layout_marginRight="8dp" -->
+<!--             android:layout_toLeftOf="@+id/playpause" -->
+<!--             android:background="@null" -->
+<!--             android:src="@drawable/play" -->
+<!--              /> -->
+
     </RelativeLayout>

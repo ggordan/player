@@ -23,9 +23,10 @@ public class SongView extends Activity {
     public String myString;
     public List value;
     TrackList currentTrack = new TrackList(this);
-
+    
     @Override
     public void onCreate( Bundle savedInstanceState ) {
+    	    	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.song_detail);
 
