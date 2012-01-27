@@ -194,7 +194,7 @@ public class TrackList extends Activity {
         startManagingCursor(cursor);
 
         while (cursor.moveToNext()) {
-            Log.w("Song", cursor.getString(1) + " " + cursor.getInt(0));
+            //Log.w("Song", cursor.getString(1) + " " + cursor.getInt(0));
             songs.put(cursor.getString(1), cursor.getInt(0));
         }
         db.close();
@@ -209,7 +209,7 @@ public class TrackList extends Activity {
         startManagingCursor(cursor);
 
         while (cursor.moveToNext()) {
-            Log.w("Song", cursor.getString(1) + " " + cursor.getInt(0));
+            //Log.w("Song", cursor.getString(1) + " " + cursor.getInt(0));
             songs.add(cursor.getInt(0));
         }
         db.close();

@@ -32,19 +32,20 @@ public class Vevolt extends Activity {
 
     Preferences prefs = new Preferences(this);
     TrackList TL = new TrackList(this);
-    MusicPlayer mp = new MusicPlayer(this);
     Integer currentPosition = 0;
     ActiveSong ass;
 
+    
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
+        
+        
     	ass = (ActiveSong) findViewById(R.id.active_song);
         ass.setActivity(this);
         
-        final AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);       
     	Resources res = getResources();
         TextView songCount = (TextView) findViewById(R.id.songCount);
         
@@ -71,21 +72,22 @@ public class Vevolt extends Activity {
             	// get the selected item SongID
                 Integer selected = Integer.parseInt(lv.getItemAtPosition(position).toString());
                 
-                if(audioManager.isMusicActive()) {
-                    mp.stop();
-                } else {
-                	Log.w("SongID", selected.toString());
-                    mp.playSong(selected);
-                }
+            	// Start the music service
+            	Intent i = new Intent(MusicPlayer.ACTION_PLAY);
+            	i.putExtra("SongID", selected);
+            	startService(i);
+            	
+                // move to song detail view
                 Intent intent = new Intent(Vevolt.this, SongView.class);
                 intent.putExtra("Track_ID", selected);
                 startActivity(intent);
             }
         });
 
- 	   // design the shit out of the play pause button
+// 	    design the shit out of the play pause button
  	   ImageButton playPause = (ImageButton) findViewById(R.id.playpause);
-
+ 	   AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+ 	   
  	   if(audioManager.isMusicActive()) {
  		   Drawable pauseButton = (Drawable) res.getDrawable(R.drawable.pause);      
  	       playPause.setImageDrawable(pauseButton);
@@ -97,8 +99,11 @@ public class Vevolt extends Activity {
     
     @Override
     protected void onResume() {
+    	        
     	super.onResume();
         final AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);       
+        
+        ass.updateCurrentTrack();
 
   	   // design the shit out of the play pause button
   	   ImageButton playPause = (ImageButton) findViewById(R.id.playpause);

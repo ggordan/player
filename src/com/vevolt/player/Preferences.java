@@ -30,6 +30,18 @@ public class Preferences {
         
         return buttonText;
     }
+
+    public Integer getCurrentActiveSong() {
+        SharedPreferences settings = context.getSharedPreferences(PREFS, 0);
+        return settings.getInt("activeSong", -1);
+    }    
+    
+    public void setActiveSong(Integer songID) {
+        SharedPreferences settings = context.getSharedPreferences(PREFS, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("activeSong", songID);
+        editor.commit();
+    }
     
     public Boolean getShuffleStatus() {
         SharedPreferences settings = context.getSharedPreferences(PREFS, 0);

@@ -20,6 +20,17 @@
         <activity android:name=".Playlists"/>
         <activity android:name=".SongView"/>
         <activity android:name=".Login"/>
-        <service android:name=".MusicPlayer"/>
+        
+        <service android:exported="false" android:name="MusicPlayer">
+            <intent-filter>
+                <action android:name="com.example.android.musicplayer.action.TOGGLE_PLAYBACK" />
+                <action android:name="com.vevolt.player.action.PLAY" />
+                <action android:name="com.vevolt.player.action.PAUSE" />
+                <action android:name="com.example.android.musicplayer.action.SKIP" />
+                <action android:name="com.example.android.musicplayer.action.REWIND" />
+                <action android:name="com.example.android.musicplayer.action.STOP" />
+            </intent-filter>      
+        </service>
+        
     </application>
 </manifest>
