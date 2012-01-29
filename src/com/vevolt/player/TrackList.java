@@ -15,6 +15,7 @@ import android.widget.ImageView;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.sql.SQLInput;
 import java.util.*;
 
 public class TrackList extends Activity {
@@ -23,6 +24,7 @@ public class TrackList extends Activity {
     final static String MEDIA_PATH = "/sdcard/Music/";
     final static String CACHE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/com.vevolt.player/cache/artwork/";
     MPDHelper dbHelper;
+    SQLiteDatabase db;
     Preferences prefs;
     
     public TrackList(Context context ) {
@@ -95,40 +97,6 @@ public class TrackList extends Activity {
         db.close();  
     }
 
-    /**
-     * Returns an alphabetical list of songs in the users SD card
-     * @return List
-     */
-    public static List alphabeticalSongList() {
-
-        File file = new File(MEDIA_PATH);
-        File list[] = file.listFiles();
-        List songs = new ArrayList();
-
-        // loop through songlist
-        for ( File song : list ) {
-            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            mmr.setDataSource(song.toString());
-            songs.add(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
-        }
-        return songs;
-    }
-    
-    public String getSongInfo(Integer songID, String row) {
-
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Log.w("track", "SELECT " + row + " FROM track WHERE Track_ID = '" + songID + "' LIMIT 1");        
-        Cursor cursor = db.rawQuery("SELECT " + row + " FROM track WHERE Track_ID = '" + songID + "' LIMIT 1", null);
-        startManagingCursor(cursor);
-
-        cursor.moveToFirst();
-        
-        db.close();
-        Log.w("Track", cursor.getString(0));
-        
-    	return cursor.getString(0);
-    }
-
     public List getSongListInfo(Integer songID) {
 
     	List data = new ArrayList();
@@ -145,6 +113,7 @@ public class TrackList extends Activity {
         db.setTransactionSuccessful();
         db.endTransaction();
         db.close();
+        SQLiteDatabase.releaseMemory();
         return data;
     }
 
@@ -180,32 +149,15 @@ public class TrackList extends Activity {
     }
 
     /**
-     * Returns a hashmap of the songs.
-     * @return HashMap Track_ID => Song Details
+     * Method to return the list of songs in the users library
+     * 
+     * @return
      */
-    public HashMap returnEvents() {
-
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM track ORDER BY " + MPDHelper.TRACK_TITLE + " ASC ", null);
-        //Cursor cursor = db.query(MPDHelper.TRACK_TABLE, null, null, null, null, null, null);
-        HashMap<String, Integer> songs = new HashMap<String, Integer>();
-        ArrayList<String> temp = new ArrayList<String>();
-
-        startManagingCursor(cursor);
-
-        while (cursor.moveToNext()) {
-            //Log.w("Song", cursor.getString(1) + " " + cursor.getInt(0));
-            songs.put(cursor.getString(1), cursor.getInt(0));
-        }
-        db.close();
-        return songs;
-    }
-    
-    public List returnSongs() {
+    public List<Integer> returnSongs() {
     	
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        db = dbHelper.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM track ORDER BY " + MPDHelper.TRACK_TITLE + " ASC ", null);
-        List songs = new ArrayList();
+        List<Integer> songs = new ArrayList<Integer>();
         startManagingCursor(cursor);
 
         while (cursor.moveToNext()) {
@@ -216,62 +168,63 @@ public class TrackList extends Activity {
         return songs;
     }
     
+    
+    
+    /**
+     * Method for populating the song queue
+     * 
+     * @param songID The ID of the song that has been selected by the user.
+     * 
+     */
     public void populateSongQueue(Integer songID) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        SQLiteDatabase wdb = dbHelper.getWritableDatabase();
-        Cursor cursor;
-        ContentValues values = new ContentValues();
-        List<Integer> tracks = new ArrayList<Integer>();
-        
-        db.execSQL("DROP TABLE queue");
-        db.execSQL(MPDHelper.QUEUE_TABLE_SQL);
+    	
+    	ContentValues values;
+        SQLiteDatabase hdb = dbHelper.getWritableDatabase();
+    	List<Integer> availableSongs = returnSongs();
+    	List<Integer> songQueue = new ArrayList<Integer>();
+    	Boolean inQueue = false;
 
-        Log.w("ShuffleStatus", " = " + prefs.getShuffleStatus());
+        hdb.execSQL(MPDHelper.QUEUE_TABLE_SQL);    	
+        hdb.execSQL("DROP TABLE " + MPDHelper.QUEUE_TABLE);
 
-        HashMap songs = returnEvents();
-        Iterator it = songs.entrySet().iterator();
-
-        Boolean start = false;
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry)it.next();
-        
-            //Log.w("sids", pairs.getValue().toString());
-            if (start) {
-                tracks.add(Integer.parseInt(pairs.getValue().toString()));
-                //Log.w("Tracks", "" + pairs.getValue().toString());
-                Log.w("YEP", "" + pairs.getValue().toString());
-            } else {
-                if (Integer.parseInt(pairs.getValue().toString()) > songID) {
-                    start = true;
-                    Log.w("NOPE", "" + pairs.getValue().toString());
-                }
-            }
-        }
-        
-        db.close();
-    }
-    
-    public void getNextSongInQueue() {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor;
-        
-        //cursor = db.rawQuery("SELECT " + MPDHelper.QUEUE_SONG_ID + " FROM " + MPDHelper.QUEUE_TABLE + " ORDER BY Queue_ID ASC", null);
-        cursor = db.rawQuery("SELECT * FROM queue", null);
-        db.close();
-       // Log.w("SQL", "SELECT Queue_ID, " + MPDHelper.QUEUE_SONG_ID + " FROM " + MPDHelper.QUEUE_TABLE + " LIMIT 1");
-        startManagingCursor(cursor);
+    	for (Integer song : availableSongs) {
         	
-        while(cursor.moveToNext()) {
-            //Log.w("QueueItems", " = " + cursor.getInt(1));
-        }
-        
-        //cursor.moveToFirst();
-        //Log.w("SQL", "s" + cursor.getInt(0) + 2);
+    		values = new ContentValues();
+    		
+    		if ( inQueue )
+    			values.put(MPDHelper.QUEUE_SONG_ID, song);
+    			hdb.insert(MPDHelper.QUEUE_TABLE, null, values);
+    		
+    		if (song == prefs.getCurrentActiveSong())
+    			inQueue = true;
+    	}
+    	hdb.close();
     }
     
+    
+    
+    /**
+     * Method for retrieving the next song in the users queue
+     * 
+     */
+    public Integer getNextSongInQueue() { 
+    	
+    	return 0;
+    }
+    
+    
+    
+    /**
+     * Method to return the number of songs the user has in their library
+     * 
+     * @return Integer 
+     */
     public Integer getSongCount() {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT Track_ID FROM track", null);
-        return cursor.getCount();
+    	
+        db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + MPDHelper.TRACK_ID + " FROM " + MPDHelper.TRACK_TABLE + "", null);
+        Integer totalSongCount = cursor.getCount();
+        db.close();
+        return totalSongCount;
     }
 }

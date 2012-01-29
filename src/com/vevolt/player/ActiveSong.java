@@ -74,12 +74,6 @@ public class ActiveSong extends RelativeLayout  {
     private OnClickListener screenshotOnClickListener = new OnClickListener() {
         public void onClick(View v) {
         	
-        	// Start the music service
-//        	Intent i = new Intent(MusicPlayer.ACTION_PLAY);
-//        	i.putExtra("SongID", 11);
-//        	context.getApplicationContext().startService(i);  
-        	
-        	
             final AudioManager audioManager = (AudioManager) context.getSystemService(context.AUDIO_SERVICE); 
        	   // design the shit out of the play pause button
             ImageButton playPause = (ImageButton) findViewById(R.id.playpause);

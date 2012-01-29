@@ -35,13 +35,10 @@ public class Vevolt extends Activity {
     Integer currentPosition = 0;
     ActiveSong ass;
 
-    
-    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
         
     	ass = (ActiveSong) findViewById(R.id.active_song);
         ass.setActivity(this);
@@ -83,18 +80,6 @@ public class Vevolt extends Activity {
                 startActivity(intent);
             }
         });
-
-// 	    design the shit out of the play pause button
- 	   ImageButton playPause = (ImageButton) findViewById(R.id.playpause);
- 	   AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
- 	   
- 	   if(audioManager.isMusicActive()) {
- 		   Drawable pauseButton = (Drawable) res.getDrawable(R.drawable.pause);      
- 	       playPause.setImageDrawable(pauseButton);
- 	   } else {
- 		   Drawable pauseButton = (Drawable) res.getDrawable(R.drawable.play);      
- 	       playPause.setImageDrawable(pauseButton);		   
- 	   }
     }
     
     @Override

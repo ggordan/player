@@ -53,12 +53,12 @@ public class SongItem extends ArrayAdapter {
 		
 		final BitmapFactory.Options options = new BitmapFactory.Options();
 		// will results in a much smaller image than the original
-		options.inSampleSize = 8;
+		options.inSampleSize = 4;
+		
+		//Log.w("SongIds", values.get(position).toString());
 		
 		final List songInfo = TL.getSongListInfo(Integer.parseInt(values.get(position).toString()));
 		
-		// don't ever use a path to /sdcard like this, but I'm sure you have a sane way to do that
-		// in this case nebulae.jpg is a 19MB 8000x3874px image
 		if (songInfo.get(2).toString().length() > 0){
 			 new Thread(new Runnable() {
 				    public void run() {

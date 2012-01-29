@@ -156,6 +156,7 @@ public class MusicPlayer extends Service implements OnCompletionListener, OnPrep
     	
     	if(extras.getInt("SongID") != -1) {
         	
+    			
             	String songLocation = TL.fetchSongLocation(extras.getInt("SongID"));
             	mPlayer.reset();
             	mPlayer.setDataSource(songLocation);   
@@ -163,8 +164,10 @@ public class MusicPlayer extends Service implements OnCompletionListener, OnPrep
             	mPlayer.prepare();
             	mPlayer.start();
             	prefs.setActiveSong(extras.getInt("SongID"));
+            	TL.populateSongQueue(extras.getInt("SongID"));
             	mState = State.Playing;
     	} else {
+    		TL.populateSongQueue(prefs.getCurrentActiveSong());
     		mPlayer.start();    		
         	mState = State.Playing;    	
     	}
@@ -192,9 +195,11 @@ public class MusicPlayer extends Service implements OnCompletionListener, OnPrep
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra) {
 		
-		if (what == -38 && extra == 0) {
+		// Catches an error with MediaPlayer ready state to allow playing of track from active song
+		if ( what == -38 && extra == 0 ) {
 			
 			if ( prefs.getCurrentActiveSong() != -1 ) {
+				
      	       Intent i = new Intent(MusicPlayer.ACTION_PLAY);
      	       i.putExtra("SongID", prefs.getCurrentActiveSong());
      	       getApplicationContext().startService(i);    
@@ -203,6 +208,9 @@ public class MusicPlayer extends Service implements OnCompletionListener, OnPrep
 		return false;
 	}
 
+	
+	
+	
 	@Override
 	public void onPrepared(MediaPlayer mp) {
 		// TODO Auto-generated method stub
