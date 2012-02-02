@@ -26,7 +26,7 @@
                 <action android:name="com.example.android.musicplayer.action.TOGGLE_PLAYBACK" />
                 <action android:name="com.vevolt.player.action.PLAY" />
                 <action android:name="com.vevolt.player.action.PAUSE" />
-                <action android:name="com.example.android.musicplayer.action.SKIP" />
+                <action android:name="com.vevolt.player.action.SKIP" />
                 <action android:name="com.example.android.musicplayer.action.REWIND" />
                 <action android:name="com.example.android.musicplayer.action.STOP" />
             </intent-filter>      

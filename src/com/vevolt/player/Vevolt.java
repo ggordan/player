@@ -72,6 +72,7 @@ public class Vevolt extends Activity {
             	// Start the music service
             	Intent i = new Intent(MusicPlayer.ACTION_PLAY);
             	i.putExtra("SongID", selected);
+            	Log.w("SelectedSongID", selected+"");
             	startService(i);
             	
                 // move to song detail view

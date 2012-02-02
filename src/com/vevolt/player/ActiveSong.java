@@ -42,7 +42,8 @@ public class ActiveSong extends RelativeLayout  {
         this.updateCurrentTrack();
         
         ((ImageButton)this.findViewById(R.id.playpause)).setOnClickListener(screenshotOnClickListener);
-
+        ((ImageButton)this.findViewById(R.id.playnext)).setOnClickListener(playNextListener);
+        
     }
 
     public void setActivity(Activity activity) {
@@ -95,4 +96,13 @@ public class ActiveSong extends RelativeLayout  {
 	   
         }
     };
+    
+    private OnClickListener playNextListener = new OnClickListener() {
+        public void onClick(View v) {
+        	
+ 	       Intent i = new Intent(MusicPlayer.ACTION_SKIP);
+ 	       i.putExtra("SongID", TL.getNextSongInQueue());
+ 	       context.getApplicationContext().startService(i); 
+        }
+    };    
 }

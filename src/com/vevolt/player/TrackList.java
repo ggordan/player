@@ -94,7 +94,6 @@ public class TrackList extends Activity {
         }
         db.setTransactionSuccessful();
         db.endTransaction();
-        db.close();  
     }
 
     public List getSongListInfo(Integer songID) {
@@ -112,7 +111,6 @@ public class TrackList extends Activity {
         data.add(cursor.getString(2));
         db.setTransactionSuccessful();
         db.endTransaction();
-        db.close();
         SQLiteDatabase.releaseMemory();
         return data;
     }
@@ -132,6 +130,7 @@ public class TrackList extends Activity {
         data.add(cursor.getString(3));
         data.add(cursor.getString(4));        
         data.add(cursor.getString(5));
+        SQLiteDatabase.releaseMemory();
         db.close();
         return data;
     }        
@@ -144,7 +143,7 @@ public class TrackList extends Activity {
         
         cursor.moveToFirst();
         Log.w("ReturnedLocation", cursor.getString(0));
-        db.close();
+        SQLiteDatabase.releaseMemory();
         return cursor.getString(0);
     }
 
@@ -164,7 +163,7 @@ public class TrackList extends Activity {
             //Log.w("Song", cursor.getString(1) + " " + cursor.getInt(0));
             songs.add(cursor.getInt(0));
         }
-        db.close();
+        SQLiteDatabase.releaseMemory();
         return songs;
     }
     
@@ -177,28 +176,40 @@ public class TrackList extends Activity {
      * 
      */
     public void populateSongQueue(Integer songID) {
-    	
-    	ContentValues values;
-        SQLiteDatabase hdb = dbHelper.getWritableDatabase();
+    	SQLiteDatabase.releaseMemory();
+    	ContentValues values = new ContentValues();
     	List<Integer> availableSongs = returnSongs();
     	List<Integer> songQueue = new ArrayList<Integer>();
     	Boolean inQueue = false;
+    	Integer LoopCounter = 1;
 
-        hdb.execSQL(MPDHelper.QUEUE_TABLE_SQL);    	
-        hdb.execSQL("DROP TABLE " + MPDHelper.QUEUE_TABLE);
+    	db.execSQL("DROP TABLE queue");
+        db.execSQL(MPDHelper.QUEUE_TABLE_SQL);    	
+    	db.beginTransaction();
 
     	for (Integer song : availableSongs) {
-        	
-    		values = new ContentValues();
     		
-    		if ( inQueue )
-    			values.put(MPDHelper.QUEUE_SONG_ID, song);
-    			hdb.insert(MPDHelper.QUEUE_TABLE, null, values);
+    		if (LoopCounter >= 26)
+    			break;
     		
-    		if (song == prefs.getCurrentActiveSong())
+    		if ( inQueue == true ) {
+    			if (LoopCounter <= 25) {
+    				values = new ContentValues();
+    				Log.w("InQueue", song + "");
+    				values.put(MPDHelper.QUEUE_SONG_ID, song);
+    				db.insert(MPDHelper.QUEUE_TABLE, null, values);
+    		    	SQLiteDatabase.releaseMemory();
+    	    		++LoopCounter;
+    			}
+    		}
+
+    		if (song == (Integer) prefs.getCurrentActiveSong())
     			inQueue = true;
     	}
-    	hdb.close();
+    	
+    	db.setTransactionSuccessful();
+    	db.endTransaction();
+    	db.close();
     }
     
     
@@ -208,8 +219,22 @@ public class TrackList extends Activity {
      * 
      */
     public Integer getNextSongInQueue() { 
+    	SQLiteDatabase db = dbHelper.getReadableDatabase();
+    	Cursor cursor = db.rawQuery("SELECT Song_ID FROM " + MPDHelper.QUEUE_TABLE + "", null);
     	
-    	return 0;
+    	while(cursor.moveToNext()) {
+    		Log.w("Queued", cursor.getInt(0) + "");
+    	}
+    	
+    	Log.w("NumRows", cursor.getCount() + "");
+    	startManagingCursor(cursor);
+    	cursor.moveToFirst();
+    	Integer LoopCounter = 0;
+    	Integer songID = cursor.getInt(0);
+ 
+    	 SQLiteDatabase.releaseMemory();
+    	 db.close();
+    	 return songID;
     }
     
     
@@ -223,8 +248,10 @@ public class TrackList extends Activity {
     	
         db = dbHelper.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT " + MPDHelper.TRACK_ID + " FROM " + MPDHelper.TRACK_TABLE + "", null);
-        Integer totalSongCount = cursor.getCount();
+        SQLiteDatabase.releaseMemory();
+        Integer songcount = cursor.getCount();
         db.close();
-        return totalSongCount;
+        return songcount;
     }
+    
 }

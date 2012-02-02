@@ -1,14 +1,11 @@
 package com.vevolt.player;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,31 +49,61 @@ public class SongItem extends ArrayAdapter {
 		TextView trackArtist = (TextView) rowView.findViewById(R.id.track_artist);
 		
 		final BitmapFactory.Options options = new BitmapFactory.Options();
-		// will results in a much smaller image than the original
 		options.inSampleSize = 4;
 		
-		//Log.w("SongIds", values.get(position).toString());
+		class BitmapDownloaderTask extends AsyncTask<String, Void, Bitmap> {
+			
+		    private final WeakReference<ImageView> imageViewReference;
+
+		    public BitmapDownloaderTask(ImageView imageView) {
+		        imageViewReference = new WeakReference<ImageView>(imageView);
+		    }
+
+		    @Override
+		    // Actual download method, run in the task thread
+		    protected Bitmap doInBackground(String... params) {
+		         // params comes from the execute() call: params[0] is the url.
+		         return getArtwork(params[0]);
+		    }
+
+		    @Override
+		    // Once the image is downloaded, associates it to the imageView
+		    protected void onPostExecute(Bitmap bitmap) {
+		        if (isCancelled()) {
+		            bitmap = null;
+		        }
+
+		        if (imageViewReference != null) {
+		            ImageView imageView = imageViewReference.get();
+		            if (imageView != null) {
+		                imageView.setImageBitmap(bitmap);
+		            }
+		        }
+		    }
+		}
+		
 		
 		final List songInfo = TL.getSongListInfo(Integer.parseInt(values.get(position).toString()));
 		
 		if (songInfo.get(2).toString().length() > 0){
-			 new Thread(new Runnable() {
-				    public void run() {
-						final Bitmap b = BitmapFactory.decodeFile(songInfo.get(2).toString(), options);
-				      rowView.post(new Runnable() {
-				        public void run() {
-				    		ImageView trackArtwork = (ImageView) rowView.findViewById(R.id.track_artwork);
-				    		trackArtwork.setImageBitmap(b);
-				        }
-				      });
-				    }
-				  }).start();
+			
+			 ImageView trackArtwork = (ImageView) rowView.findViewById(R.id.track_artwork);
+			 new BitmapDownloaderTask(trackArtwork).execute(songInfo.get(2).toString());
 		}
 	
 		trackTitle.setText(songInfo.get(0).toString());		
 		trackArtist.setText(songInfo.get(1).toString());
 		
 		return rowView;
+	}
+	
+	public Bitmap getArtwork(String artworkLocation) {
+		
+		final BitmapFactory.Options options = new BitmapFactory.Options();
+		// will results in a much smaller image than the original
+		options.inSampleSize = 4;
+		final Bitmap b = BitmapFactory.decodeFile(artworkLocation, options);
+		return b;
 	}
 	
 }

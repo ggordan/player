@@ -145,10 +145,28 @@ public class MusicPlayer extends Service implements OnCompletionListener, OnPrep
 				}
         } else if (action.equals(ACTION_PAUSE)) {
 			pauseSong();
+        } else if (action.equals(ACTION_SKIP)) {
+        	try {
+				playNext(intent);
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalStateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
         
         return START_NOT_STICKY;
     }
+    
+    
         
     private void playSelectedSong(Intent intent) throws IllegalStateException, IOException {
     	
@@ -167,9 +185,8 @@ public class MusicPlayer extends Service implements OnCompletionListener, OnPrep
             	TL.populateSongQueue(extras.getInt("SongID"));
             	mState = State.Playing;
     	} else {
-    		TL.populateSongQueue(prefs.getCurrentActiveSong());
-    		mPlayer.start();    		
-        	mState = State.Playing;    	
+    			mPlayer.start();    		
+            	mState = State.Playing;    			
     	}
     }
     
@@ -177,11 +194,21 @@ public class MusicPlayer extends Service implements OnCompletionListener, OnPrep
     	mPlayer.pause();
     	mState = State.Paused;
     }
-
-    private void processTogglePlaybackRequest() {
-		// TODO Auto-generated method stub
-		
-	}
+    
+    private void playNext(Intent intent) throws IllegalArgumentException, SecurityException, IllegalStateException, IOException {
+    	
+    	Bundle extras = intent.getExtras();
+    	
+            	String songLocation = TL.fetchSongLocation(extras.getInt("SongID"));
+            	Log.w("NextSong", TL.fetchSongLocation(extras.getInt("SongID")));
+            	mPlayer.reset();
+            	mPlayer.setDataSource(songLocation);   
+            	Log.w("SongID", songLocation);
+            	mPlayer.prepare();
+            	mPlayer.start();
+            	prefs.setActiveSong(extras.getInt("SongID"));
+            	mState = State.Playing;
+    }
 
 	@Override
     public void onDestroy() {
@@ -219,8 +246,10 @@ public class MusicPlayer extends Service implements OnCompletionListener, OnPrep
 
 	@Override
 	public void onCompletion(MediaPlayer mp) {
-		// TODO Auto-generated method stub
 		
+	       Intent i = new Intent(MusicPlayer.ACTION_PLAY);
+	       i.putExtra("SongID", TL.getNextSongInQueue());
+	       getApplicationContext().startService(i); 
 	}
 	
     @Override

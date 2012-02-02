@@ -39,10 +39,12 @@ public class MPDHelper extends SQLiteOpenHelper {
     public static final String QUEUE_TABLE = "queue";
     public static final String QUEUE_TABLE_SQL =  "CREATE TABLE " + QUEUE_TABLE + " ( "
             + "Queue_ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
-            + "Song_ID INTEGER"
+            + "Song_ID INTEGER, "
+            + "Active INTEGER"
             + ")";
 
     public static final String QUEUE_ID = "Queue_ID";
+    public static final String ACTIVE = "Active";
     public static final String QUEUE_SONG_ID = "Song_ID";
 
     public MPDHelper(Context context) {

@@ -48,6 +48,7 @@
             android:src="@drawable/pause" />
 
 		<ImageButton
+		    android:id="@+id/playnext"
             android:layout_width="32dp"
             android:contentDescription="saas"
             android:layout_height="32dp"
