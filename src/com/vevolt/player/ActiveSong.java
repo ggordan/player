@@ -24,7 +24,8 @@ public class ActiveSong extends RelativeLayout  {
     private Activity activeActivity;
     private Context context;
     Preferences prefs;
-    TrackList TL; 
+    TrackList TL;
+    Engine engine;
     
     public ActiveSong(Context xcontext, AttributeSet attrs) {	
         super(xcontext, attrs);
@@ -32,7 +33,8 @@ public class ActiveSong extends RelativeLayout  {
         context = xcontext;
         
         TL = new TrackList(context.getApplicationContext());
-                
+        engine = new Engine(context.getApplicationContext());        
+        
         String infService = Context.LAYOUT_INFLATER_SERVICE;
         LayoutInflater li;
  
@@ -41,6 +43,7 @@ public class ActiveSong extends RelativeLayout  {
         
         this.updateCurrentTrack();
         
+        ((RelativeLayout)this.findViewById(R.id.activeSongLayout)).setOnClickListener(viewSongDetails);
         ((ImageButton)this.findViewById(R.id.playpause)).setOnClickListener(screenshotOnClickListener);
         ((ImageButton)this.findViewById(R.id.playnext)).setOnClickListener(playNextListener);
         
@@ -96,13 +99,40 @@ public class ActiveSong extends RelativeLayout  {
 	   
         }
     };
-    
+        
     private OnClickListener playNextListener = new OnClickListener() {
         public void onClick(View v) {
+       	
+        	Intent i = new Intent(MusicPlayer.ACTION_SKIP);
+        	i.putExtra("SongID", engine.getNextSongInQueue());
+        	context.getApplicationContext().startService(i);        	
         	
- 	       Intent i = new Intent(MusicPlayer.ACTION_SKIP);
- 	       i.putExtra("SongID", TL.getNextSongInQueue());
- 	       context.getApplicationContext().startService(i); 
+        	final List songInfo = TL.getSongListInfo(prefs.getCurrentActiveSong());
+        	TextView newSongActive = (TextView) findViewById(R.id.currentTitle);
+        	newSongActive.setText(songInfo.get(0).toString());
+        	TextView newAlbumActive = (TextView) findViewById(R.id.currentArtist);
+        	newAlbumActive.setText(songInfo.get(1).toString());
+        	
+    		if (songInfo.get(2).toString().length() > 0){
+    			
+   			 ImageView trackArtwork = (ImageView) findViewById(R.id.currentartwork);
+   			 final BitmapFactory.Options options = new BitmapFactory.Options();
+   			 // will results in a much smaller image than the original
+   			 options.inSampleSize = 4;
+   			 final Bitmap b = BitmapFactory.decodeFile(songInfo.get(2).toString(), options);
+   			trackArtwork.setImageBitmap(b);
+   			
+   		}
         }
     };    
+    
+    private OnClickListener viewSongDetails = new OnClickListener() {
+        public void onClick(View v) {
+        	
+            Intent intent = new Intent(context.getApplicationContext(), SongView.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra("Track_ID", prefs.getCurrentActiveSong());
+            context.getApplicationContext().startActivity(intent);
+        }
+    };        
 }

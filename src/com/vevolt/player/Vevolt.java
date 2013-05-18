@@ -1,7 +1,7 @@
 package com.vevolt.player;
-//http://developer.android.com/resources/samples/ApiDemos/src/com/example/android/apis/view/List4.html
 import android.app.Activity;
 import android.app.ListActivity;
+import android.app.SearchManager;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
@@ -16,12 +16,16 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.*;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import java.io.IOException;
 import java.util.*;
@@ -33,37 +37,68 @@ public class Vevolt extends Activity {
     Preferences prefs = new Preferences(this);
     TrackList TL = new TrackList(this);
     Integer currentPosition = 0;
-    ActiveSong ass;
+    ActiveSong activeSong;
+//    Loader loader;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        //getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+        //getActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
         
-    	ass = (ActiveSong) findViewById(R.id.active_song);
-        ass.setActivity(this);
-        
-    	Resources res = getResources();
-        TextView songCount = (TextView) findViewById(R.id.songCount);
-        
-        songCount.setText( TL.getSongCount() + " songs");
-        //TL.addEvent();
-			  
-        // Fetch all song ID's
-		List listOfSongs = TL.returnSongs();
-        
-        // The listView that will display all the tracks
-        final ListView lv= (ListView)findViewById(R.id.listview);
-        
-        // enable long clicking on list items
-        lv.setLongClickable(true);
+        //TL.loadTracks();
 
-        // set the list adapted using custom adapter for SongItems
-        lv.setAdapter(new SongItem(this, listOfSongs));
+        setContentView(R.layout.main);
+        List<Integer> listOfSongs;
         
-        // create an OnClick listener for list items
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        // Get the intent, verify the action and get the query
+        Intent intent = getIntent();
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+        	String query = intent.getStringExtra(SearchManager.QUERY);
+        	listOfSongs = TL.returnQuery(query);
         	
+        	if (listOfSongs.size() > 0) {
+	            TextView songCount = (TextView) findViewById(R.id.songCount);
+	            songCount.setText(  listOfSongs.size() + " song(s) found using '"+query+"'");
+        	} else {
+                TextView songCount = (TextView) findViewById(R.id.songCount);
+                songCount.setText("No songs found with that query. Viewing all songs...");   
+            	listOfSongs = TL.returnSongs();
+        	}
+            
+        } else {
+        	listOfSongs = TL.returnSongs();
+            TextView songCount = (TextView) findViewById(R.id.songCount);
+            songCount.setText(  listOfSongs.size() + " songs");
+        }
+        
+        if (listOfSongs.size() != 0) {
+        
+        // Set the Active song in the bottom menu
+        activeSong = (ActiveSong) findViewById(R.id.active_song);
+        activeSong.setActivity(this);
+        // Set the Active song in the bottom menu
+//        loader = (Loader) findViewById(R.id.loader);
+//        loader.setActivity(this);
+        
+        /*
+         * Display the song count
+         */
+
+        
+        final ListView lv= (ListView)findViewById(R.id.listview);
+        lv.setAdapter(new SongItem(this, listOfSongs));        
+
+        /* 
+         * Enable long clicks on song items ( For context menu)
+         */
+        lv.setLongClickable(true);
+        registerForContextMenu(lv);
+        
+        /*
+         * Define the on click listener
+         */
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             	
             	// get the selected item SongID
@@ -81,17 +116,112 @@ public class Vevolt extends Activity {
                 startActivity(intent);
             }
         });
+        
+        /*
+         * Store the currently selected item in the preferences
+         */
+        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Integer selected = Integer.parseInt(lv.getItemAtPosition(position).toString());
+				prefs.setLongClickValue(selected);
+				return false;
+			}
+		});
+        
+        } else {
+        	Toast.makeText(this, "Please add some music to the /Music folder then restart the application", Toast.LENGTH_LONG).show();
+        }
+    }
+    
+    /*
+     * Handles the CONTEXT menu
+     */
+    
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.context_menu, menu);
+    }
+    
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+    	
+    	// define the duration of the toast
+    	int duration = Toast.LENGTH_SHORT;
+    	
+    	/*
+    	 * Define behaviour for different options: queue, playlist
+    	 */
+        switch (item.getItemId()) {
+            case R.id.queueSong:
+            	new Engine(this).addSongToQueue(prefs.getLongClickValue());
+            	Toast.makeText(this, "The song has been added to the music queue.", duration).show();
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+    
+    /* 
+     * Handles the OPTIONS menu
+     */    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        
+    	MenuInflater inflater = getMenuInflater();
+        MenuInflater iinflater = getMenuInflater();
+        
+        iinflater.inflate(R.menu.main_activity, menu);
+        inflater.inflate(R.menu.menu, menu);        
+        return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	
+        // app icon in action bar clicked; go home
+    	
+        switch (item.getItemId()) {
+        	case R.id.menu_save:
+                Intent inntent = new Intent(Vevolt.this, Loved.class);
+                startActivity(inntent);
+	            break;
+            case R.id.home:
+                // app icon in action bar clicked; go home
+                Intent intent = new Intent(this, Vevolt.class);            	
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                return true;
+            case R.id.viewqueue:
+            	Intent queue = new Intent(this, Queue.class);            	
+                queue.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(queue);
+                break;
+            case R.id.lastfmsettings:
+            	Intent last = new Intent(this, Lastfm.class);            	
+                last.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(last);            	
+                break;
+            case R.id.icontext:
+            	Intent j = new Intent(Intent.ACTION_MAIN);
+            	j.addCategory(Intent.CATEGORY_HOME);
+            	j.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            	startActivity(j);
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+        return true;
     }
     
     @Override
     protected void onResume() {
-    	        
     	super.onResume();
         final AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);       
         
-        ass.updateCurrentTrack();
+        activeSong.updateCurrentTrack();
 
-  	   // design the shit out of the play pause button
   	   ImageButton playPause = (ImageButton) findViewById(R.id.playpause);
   	   Resources res = getResources();
 
@@ -104,73 +234,14 @@ public class Vevolt extends Activity {
   	       playPause.setImageDrawable(pauseButton);		   
   	   } 	
     }
-
-    @Override
-    public void onRestoreInstanceState(final Bundle savedInstanceState) {
-       super.onRestoreInstanceState(savedInstanceState);
-    }    
-    
     
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putString("test", "Welcome back to Android");
-        super.onSaveInstanceState(savedInstanceState);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        
-    	MenuInflater inflater = getMenuInflater();
-        MenuInflater iinflater = getMenuInflater();
-        
-        iinflater.inflate(R.menu.main_activity, menu);
-        
-        inflater.inflate(R.menu.menu, menu);
-        MenuItem shuffle = menu.getItem(1);
-        if (prefs.getShuffleStatus()) {
-            shuffle.setTitle("Turn SmartShuffle on");
-        } else {
-            shuffle.setTitle("Turn SmartShuffle off");
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+        	// move to song detail view
+            Intent intent = new Intent(this, Vevolt.class);
+            startActivity(intent);        	
         }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-    	
-        // app icon in action bar clicked; go home
-    	
-        switch (item.getItemId()) {
-        	case R.id.menu_save:
-                Intent inntent = new Intent(Vevolt.this, Login.class);
-                startActivity(inntent);
-	            break;
-            case R.id.home:
-                // app icon in action bar clicked; go home
-                Intent intent = new Intent(this, Vevolt.class);            	
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                return true;
-            case R.id.text1:
-                finish();
-                break;
-            case R.id.shuffle:
-
-                if (prefs.getShuffleStatus()) {
-                    item.setTitle("Turn SmartShuffle on");
-                    prefs.setShuffleStatus(false);
-                } else {
-                    item.setTitle("Turn SmartShuffle off");
-                    prefs.setShuffleStatus(true);
-                }
-
-                break;
-            case R.id.icontext:
-                Toast.makeText(this, "You pressed the icon and text!", Toast.LENGTH_LONG).show();
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-        return true;
+        return super.onKeyDown(keyCode, event);
     }
 }

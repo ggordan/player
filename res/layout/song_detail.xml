@@ -41,60 +41,14 @@
             android:layout_marginRight="8dp"
             android:layout_marginBottom="10dp"
             android:background="@null"
-            android:src="@drawable/guardian"
+            android:id="@+id/lovedTrack"
+            android:src="@drawable/loved"
              />
-
-                            <ImageButton
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="10dp"
-            android:background="@null"
-            android:src="@drawable/guardian"
-             />
-                            
-                            <ImageButton
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="10dp"
-            android:background="@null"
-            android:src="@drawable/guardian"
-             />
-
-                            <ImageButton
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="10dp"
-            android:background="@null"
-            android:src="@drawable/guardian"
-             />
-                            
-                            <ImageButton
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="10dp"
-            android:background="@null"
-            android:src="@drawable/guardian"
-             />
-                            
-                            <ImageButton
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="10dp"
-            android:background="@null"
-            android:src="@drawable/guardian"
-             />                            
-                            
                             
         </LinearLayout>
 
     </LinearLayout>
 
-   
    	<LinearLayout
    	    android:id="@+id/linearLayout1"
    	    android:layout_width="match_parent"
@@ -132,7 +86,7 @@
    	    android:background="#e2e2e2"
    	    android:orientation="horizontal"
    	    android:padding="10dp">
-
+ 
 				<TextView
 				    android:id="@+id/textView1"
 				    android:layout_width="50dp"
@@ -149,6 +103,16 @@
 	    		
 	</LinearLayout>   	
 
+   	
+   	         <ProgressBar
+            android:id="@+id/songProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true" />
+   	   
+   	
    	   	<RelativeLayout
    	    android:id="@+id/linearLayout1"
    	    android:layout_width="fill_parent"
@@ -159,17 +123,17 @@
    	    android:orientation="horizontal">			 		
 	
         <ImageButton
-            android:id="@+id/play"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
+            android:id="@+id/playnextsong"
            android:layout_centerHorizontal="true"            
-            android:layout_toRightOf="@+id/test"
-            android:src="@drawable/playbutton"
+            android:layout_toRightOf="@+id/pressplay"
+            android:src="@drawable/nextsong"
              />
 
         <ImageButton
-            android:id="@+id/test"
+            android:id="@+id/pressplay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="4dp"
@@ -182,10 +146,11 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/test"            
+            android:layout_toLeftOf="@id/pressplay"            
             android:background="@null"
-            android:src="@drawable/playbutton"
-             />        
+            android:id="@+id/playprevsong"
+            android:src="@drawable/prevsong"
+             />
         	   	    
    	  	</RelativeLayout>
 	

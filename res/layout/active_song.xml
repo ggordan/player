@@ -3,6 +3,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
 		android:padding="8dp"
+		android:id="@+id/activeSongLayout"
         android:layout_height="wrap_content"
         android:background="#222222">
 
@@ -55,7 +56,7 @@
             android:layout_marginRight="8dp"
             android:layout_toLeftOf="@+id/playpause"
             android:background="@null"
-            android:src="@drawable/guardian"
+            android:src="@drawable/skip"
              />
 
     </RelativeLayout>
